@@ -1,6 +1,3 @@
 package models;
 
-public class Position {
-    private int x;
-    private int y;
-}
+public record Position(int x, int y){}
