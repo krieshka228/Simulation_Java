@@ -2,8 +2,8 @@ package models;
 
 public class Herbivore extends Entity
 {
-    public Herbivore()
+    public Herbivore(Position pos)
     {
-        super('Z');
+        super('Z', pos);
     }
 }
