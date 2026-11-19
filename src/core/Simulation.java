@@ -49,6 +49,7 @@ public class Simulation
                                {
                                    map.removeEntity(map.tryGetEntity(neibghor));
                                    map.spawnEntity(new Herbivore());
+                                   map.spawnEntity(new Grass());
                                }
                            } else if (entity.symbol == 'W')
                            {
