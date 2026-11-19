@@ -2,9 +2,9 @@ package models;
 
 public class Predator extends Entity
 {
-    public Predator(Position pos)
+    public Predator()
     {
-        super('W', pos);
+        super('W');
     }
 
 }

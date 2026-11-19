@@ -1,36 +1,102 @@
 package core;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-import models.Graph;
-import models.Position;
-import models.Entity;
+import models.*;
 
 public class Simulation
 {
-    public void spawnEntity(WorldMap gameMap, Entity entity)
-    {
-        Random random = new Random();
-        int x = random.nextInt(gameMap.xMax);
-        int y = random.nextInt(gameMap.yMax);
-        Position position = new Position(x,y);
-        gameMap.addEntity(position,entity);
-    }
-    public void roadToDream(Renderer renderer, WorldMap gameMap)
-    {
+    public Map<Entity,List<Position>> pathes = new HashMap<>();
 
-        Entity entity1 = gameMap.tryGetEntity(new Position(2,2));
-        Entity entity2 = gameMap.tryGetEntity(new Position(4,4));
-        List<Position> path = Graph.bfs(gameMap, entity1.getPos(), entity2.getPos());
-        while(!entity1.getPos().equals(entity2.getPos()))
+
+    public void startSimulation()
+    {
+        List<Position> path = new ArrayList<>();
+        WorldMap map = new WorldMap(5,5);
+        Renderer renderer = new Renderer();
+        map.startSpawn();
+        addPathForRabbit(map);
+        List<Entity> entities = map.getEntityes();
+        renderer.drawMap(map);
+        System.out.println("\n------");
+        while(!isGameOver(map))
         {
-            entity1.putPos(path.removeFirst(), gameMap);
-            renderer.drawMap(gameMap);
-            System.out.println("\n------");
+            addPathForWolf(map);
+
+           for(var ent : entities)
+           {
+               playOneStep(map, ent);
+           }
+           renderer.drawMap(map);
+           System.out.println("\n------");
+
         }
-
-
+    }
+    public void playOneStep(WorldMap gameMap, Entity entity)
+    {
+        if (entity.symbol == 'T')
+        {
+            return;
+        }
+        var path = pathes.get(entity);
+        if(path.size() == 0)
+        {
+            return;
+        }
+        var onePos = path.removeFirst();
+        gameMap.putPos(entity, onePos);
 
     }
-
+    public boolean isGameOver(WorldMap map)
+    {
+        boolean herbOver = true;
+        boolean predOver = true;
+        var entities = map.getEntityes();
+        for(var e : entities)
+        {
+            if(e.symbol == 'Z')
+            {
+                herbOver = false;
+            } else if (e.symbol == 'W')
+            {
+                predOver = false;
+            }
+        }
+        return herbOver || predOver;
+    }
+    public void addPathForWolf(WorldMap map)
+    {
+        List<Entity> entities = map.getEntityes();
+        for(var ent : entities)
+        {
+            if(ent.symbol == 'W')
+            {
+                for (var e : entities)
+                {
+                    if(e.symbol == 'Z')
+                    {
+                         var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                         pathes.put(ent, path);
+                    }
+                }
+            }
+        }
+    }
+    public void addPathForRabbit(WorldMap map)
+    {
+        List<Entity> entities = map.getEntityes();
+        for(var ent : entities)
+        {
+            if(ent.symbol == 'Z')
+            {
+                for (var e : entities)
+                {
+                    if(e.symbol == 'T')
+                    {
+                        var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                        pathes.put(ent, path);
+                    }
+                }
+            }
+        }
+    }
 }

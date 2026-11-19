@@ -13,13 +13,7 @@ public class Program
 {
     public static void main(String args[])
     {
-        WorldMap map = new WorldMap(5,5);
-        Graph graph = new Graph();
         Simulation simulation = new Simulation();
-        Renderer renderer = new Renderer();
-        Entity entity = map.tryGetEntity(new Position(2,2));
-        Entity entity1 = map.tryGetEntity(new Position(4,4));
-        List<Position> path = Graph.bfs(map, entity.getPos(), entity1.getPos());
-        simulation.roadToDream(renderer, map);
+        simulation.startSimulation();
     }
 }

@@ -2,8 +2,8 @@ package models;
 
 public class Grass extends Entity
 {
-    public Grass(Position pos)
+    public Grass()
     {
-        super('T', pos);
+        super('T');
     }
 }
