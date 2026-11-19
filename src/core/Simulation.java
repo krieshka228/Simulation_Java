@@ -38,10 +38,17 @@ public class Simulation
                eatEntity(new Handler() {
                @Override
                public void onCome( WorldMap map, Entity entity) {
-                   var neibghors = Graph.getNeighbors(map.tryGetPos(entity));
-                   for(var neibghor : neibghors)
+                   if(entity == null)
                    {
-                       if(Graph.isValidPos(neibghor, map) && !map.isNull(neibghor))
+                       return;
+                   }
+                   var pos = map.tryGetPos(entity);
+                   if(pos != null)
+                   {
+                       var neibghors = Graph.getNeighbors(map.tryGetPos(entity));
+                       for(var neibghor : neibghors)
+                    {
+                       if(!map.isNull(neibghor) && Graph.isValidPos(neibghor, map))
                        {
                            if(entity.symbol == 'Z')
                            {
@@ -61,7 +68,13 @@ public class Simulation
                            }
                        }
 
+                    }
                    }
+                   else
+                   {
+                       return;
+                   }
+
                }});
            }
            renderer.drawMap(map);
