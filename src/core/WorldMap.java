@@ -63,4 +63,12 @@ public class WorldMap
         Position position = new Position(x,y);
         addEntity(position,entity);
     }
+    public void removeEntity(Entity entity)
+    {
+        entityes.remove(tryGetPos(entity));
+    }
+    public boolean isNull(Position pos)
+    {
+        return entityes.get(pos) == null;
+    }
 }

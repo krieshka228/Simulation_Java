@@ -27,6 +27,7 @@ public class Graph {
             if(node.equals(end))
             {
                 path.removeFirst();
+                path.removeLast();
                 return path;
             }
             visited.add(node);
@@ -46,6 +47,10 @@ public class Graph {
             }
         }
         return null;
+    }
+    public static boolean isValidPos(Position pos, WorldMap map)
+    {
+        return pos.x() < map.xMax && pos.x() >= 0 && pos.y() < map.yMax && pos.y() >= 0;
     }
     public static List<Position> getNeighbors(Position node)
     {
