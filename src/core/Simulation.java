@@ -8,7 +8,7 @@ public class Simulation
 {
     public interface Handler
     {
-        void onCome(WorldMap map , Entity entity);
+        void onCome(WorldMap map , Entity entity1, Entity entity2);
     }
     private Handler handler;
     public Map<Entity,List<Position>> pathes = new HashMap<>();
@@ -37,43 +37,23 @@ public class Simulation
                playOneStep(map, ent);
                eatEntity(new Handler() {
                @Override
-               public void onCome( WorldMap map, Entity entity) {
-                   if(entity == null)
-                   {
-                       return;
-                   }
-                   var pos = map.tryGetPos(entity);
-                   if(pos != null)
-                   {
-                       var neibghors = Graph.getNeighbors(map.tryGetPos(entity));
-                       for(var neibghor : neibghors)
-                    {
-                       if(!map.isNull(neibghor) && Graph.isValidPos(neibghor, map))
-                       {
-                           if(entity.symbol == 'Z')
+               public void onCome( WorldMap map, Entity entity1, Entity entity2 ) {
+                           if(entity1.symbol == 'Z')
                            {
-                               if(map.tryGetEntity(neibghor).symbol == 'T')
+                               if(entity2.symbol == 'T')
                                {
-                                   map.removeEntity(map.tryGetEntity(neibghor));
+                                   map.removeEntity(entity2);
                                    map.spawnEntity(new Herbivore());
                                    map.spawnEntity(new Grass());
                                }
-                           } else if (entity.symbol == 'W')
+                           } else if (entity1.symbol == 'W')
                            {
-                               if(map.tryGetEntity(neibghor).symbol == 'Z')
+                               if(entity2.symbol == 'Z')
                                {
-                                   map.removeEntity(map.tryGetEntity(neibghor));
+                                   map.removeEntity(entity2);
                                    map.spawnEntity(new Predator());
                                }
                            }
-                       }
-
-                    }
-                   }
-                   else
-                   {
-                       return;
-                   }
 
                }});
            }
@@ -91,8 +71,12 @@ public class Simulation
         var path = pathes.get(entity);
         if(path.size() == 0)
         {
-            handler.onCome(gameMap, entity);
             return;
+        }w
+        if(path.size() == 1)
+        {
+            var ent = gameMap.tryGetEntity(path.get(0));
+            handler.onCome(gameMap, entity, ent);
         }
         var onePos = path.removeFirst();
         gameMap.putPos(entity, onePos);

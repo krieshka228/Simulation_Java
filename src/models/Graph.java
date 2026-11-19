@@ -27,7 +27,6 @@ public class Graph {
             if(node.equals(end))
             {
                 path.removeFirst();
-                path.removeLast();
                 return path;
             }
             visited.add(node);
@@ -54,10 +53,6 @@ public class Graph {
     }
     public static List<Position> getNeighbors(Position node)
     {
-        if(node == null)
-        {
-
-        }
         List<Position> neighbors = new ArrayList<>();
         neighbors.add(new Position(node.x() - 1, node.y()));
         neighbors.add(new Position(node.x(), node.y() - 1));
