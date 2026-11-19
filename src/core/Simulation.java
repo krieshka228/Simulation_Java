@@ -72,7 +72,7 @@ public class Simulation
         if(path.size() == 0)
         {
             return;
-        }w
+        }
         if(path.size() == 1)
         {
             var ent = gameMap.tryGetEntity(path.get(0));
