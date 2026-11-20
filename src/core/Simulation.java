@@ -10,6 +10,7 @@ public class Simulation
     {
         void onCome(WorldMap map , Entity entity1, Entity entity2);
     }
+    private List<Entity> entities = new ArrayList<>();
     private Handler handler;
     public Map<Entity,List<Position>> pathes = new HashMap<>();
 
@@ -25,7 +26,7 @@ public class Simulation
         Renderer renderer = new Renderer();
         map.startSpawn();
         addPathForRabbit(map);
-        List<Entity> entities = map.getEntityes();
+        entities = map.getEntityes();
         renderer.drawMap(map);
         System.out.println("\n------");
         while(!isGameOver(map))
@@ -37,7 +38,7 @@ public class Simulation
                playOneStep(map, ent);
                eatEntity(new Handler() {
                @Override
-               public void onCome( WorldMap map, Entity entity1, Entity entity2 ) {
+               public void onCome( WorldMap map, Entity entity1, Entity entity2) {
                            if(entity1.symbol == 'Z')
                            {
                                if(entity2.symbol == 'T')
@@ -45,6 +46,7 @@ public class Simulation
                                    map.removeEntity(entity2);
                                    map.spawnEntity(new Herbivore());
                                    map.spawnEntity(new Grass());
+                                   entities = map.getEntityes();
                                }
                            } else if (entity1.symbol == 'W')
                            {
@@ -52,6 +54,7 @@ public class Simulation
                                {
                                    map.removeEntity(entity2);
                                    map.spawnEntity(new Predator());
+                                   entities = map.getEntityes();
                                }
                            }
 
@@ -77,6 +80,16 @@ public class Simulation
         {
             var ent = gameMap.tryGetEntity(path.get(0));
             handler.onCome(gameMap, entity, ent);
+        }
+        for(var pos : path)
+        {
+            if(entity.symbol == 'W')
+            {
+                if(gameMap.isNull(pos) && gameMap.tryGetEntity(pos).symbol == 'T')
+                {
+
+                }
+            }
         }
         var onePos = path.removeFirst();
         gameMap.putPos(entity, onePos);

@@ -57,11 +57,14 @@ public class WorldMap
     }
     public void spawnEntity(Entity entity)
     {
-        Random random = new Random();
-        int x = random.nextInt(xMax);
-        int y = random.nextInt(yMax);
-        Position position = new Position(x,y);
-        addEntity(position,entity);
+        var freePos = getFreePos();
+        if(freePos.size() > 0)
+        {
+            Random random = new Random();
+            var pos = freePos.get(random.nextInt(freePos.size()));
+            addEntity(pos,entity);
+        }
+
     }
     public void removeEntity(Entity entity)
     {
@@ -70,5 +73,21 @@ public class WorldMap
     public boolean isNull(Position pos)
     {
         return entityes.get(pos) == null;
+    }
+    public List<Position> getFreePos()
+    {
+        List<Position> freePos = new ArrayList<>();
+        for(int x = 0; x < xMax; x++)
+        {
+            for(int y = 0; y < yMax; y++)
+            {
+                Position pos = new Position(x,y);
+                if(isNull(pos))
+                {
+                    freePos.add(pos);
+                }
+            }
+        }
+        return freePos;
     }
 }
