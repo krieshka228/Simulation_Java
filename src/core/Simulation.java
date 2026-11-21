@@ -143,7 +143,7 @@ public class Simulation
                                     {
                                         if(Graph.isValidPos(neib,map))
                                         {
-                                            path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(enti));
+                                            path = Graph.bfs(map, map.tryGetPos(ent), neib);
                                             pathesNeibghors.add(path);
                                         }
                                     }
@@ -155,7 +155,7 @@ public class Simulation
                             if(p.size() < min)
                             {
                                 min = p.size();
-                                if(path.size() != 0)
+                                if(path.size() > 1)
                                 {
                                     path = p;
                                 }
@@ -191,7 +191,7 @@ public class Simulation
                                 {
                                     if(Graph.isValidPos(neib,map))
                                     {
-                                        path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(enti));
+                                        path = Graph.bfs(map, map.tryGetPos(ent), neib);
                                         pathesNeibghors.add(path);
                                     }
                                 }
@@ -203,7 +203,7 @@ public class Simulation
                             if(p.size() < min)
                             {
                                 min = p.size();
-                                if(path.size() != 0)
+                                if(path.size() > 1)
                                 {
                                     path = p;
                                 }

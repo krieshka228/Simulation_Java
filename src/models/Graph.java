@@ -27,7 +27,11 @@ public class Graph {
             if(node.equals(end))
             {
                 path.removeFirst();
-                path.removeLast();
+                if(path.size() > 0)
+                {
+                    path.removeLast();
+                }
+
                 return path;
             }
             visited.add(node);

@@ -30,7 +30,7 @@ public class Renderer
     public void pauseSec()
     {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
