@@ -51,8 +51,8 @@ public class WorldMap
     }
     public void startSpawn()
     {
-        spawnEntity(new Herbivore());
-        spawnEntity(new Predator());
+        spawnEntity(new Herbivore(Simulation.hpHerbivore));
+        spawnEntity(new Predator(Simulation.hpPredator,Simulation.damagePredator));
         spawnEntity(new Grass());
     }
     public void spawnEntity(Entity entity)
@@ -89,5 +89,18 @@ public class WorldMap
             }
         }
         return freePos;
+    }
+    public List<Creature> getCreatures()
+    {
+        List<Entity> entityList = getEntityes();
+        List<Creature> creaturesList = new ArrayList<>();
+        for(var ent : entityList)
+        {
+            if(Creature.class.isInstance(ent))
+            {
+                creaturesList.add((Creature) ent);
+            }
+        }
+        return creaturesList;
     }
 }

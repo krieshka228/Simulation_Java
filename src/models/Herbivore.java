@@ -1,9 +1,9 @@
 package models;
 
-public class Herbivore extends Entity
+public class Herbivore extends Creature
 {
-    public Herbivore()
+    public Herbivore(int hp)
     {
-        super("🐰");
+        super(hp, "🐰");
     }
 }

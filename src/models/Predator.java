@@ -1,10 +1,13 @@
 package models;
 
-public class Predator extends Entity
+public class Predator extends Creature
 {
-    public Predator()
+    public int damage;
+    public Predator(int hp, int damage)
     {
-        super("🐺");
+        super(hp,"🐺");
+        this.damage = damage;
+
     }
 
 }
