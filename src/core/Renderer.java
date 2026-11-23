@@ -11,13 +11,13 @@ public class Renderer
         consoleClear();
         for(int i = 0; i < map.xMax; i++)
         {
-            IO.println();
+            System.out.println();
             for(int j = 0; j < map.yMax; j++)
             {
                 Position position = new Position(i,j);
                 Entity getEntity = map.tryGetEntity(position);
-                if(getEntity == null) IO.print("🔲");
-                else IO.print(getEntity.symbol);
+                if(getEntity == null) System.out.print("🔲");
+                else System.out.print(getEntity.symbol);
             }
         }
         pauseSec();
@@ -30,7 +30,7 @@ public class Renderer
     public void pauseSec()
     {
         try {
-            Thread.sleep(500);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

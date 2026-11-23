@@ -27,17 +27,13 @@ public class Graph {
             if(node.equals(end))
             {
                 path.removeFirst();
-                if(path.size() > 0)
-                {
-                    path.removeLast();
-                }
-
+                path.removeLast();
                 return path;
             }
             visited.add(node);
             for(var neighb : getNeighbors(node))
             {
-                if(neighb.x() < map.xMax && neighb.x() >= 0 && neighb.y() < map.yMax && neighb.y() >= 0)
+                if(isValidPos(neighb, map) && isEmptyCell(neighb,map,end))
                 {
                     List<Position> newPath = new ArrayList<>();
                     for (int i = 0; i < path.size(); i++)
@@ -64,5 +60,27 @@ public class Graph {
         neighbors.add(new Position(node.x() + 1, node.y()));
         neighbors.add(new Position(node.x(), node.y() + 1));
         return neighbors;
+    }
+    public static boolean isValidPath(List<Position> path, WorldMap map)
+    {
+        for(int i = 1; i < path.size() - 1; i++)
+        {
+            if(!map.isNull(path.get(i)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    public static  boolean isEmptyCell(Position pos, WorldMap map, Position endPos)
+    {
+        if(pos.equals(endPos))
+        {
+            return true;
+        }
+        else
+        {
+            return map.isNull(pos);
+        }
     }
 }

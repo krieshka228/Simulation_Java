@@ -30,9 +30,6 @@ public class Simulation
         renderer.drawMap(map);
         while(!isGameOver(map))
         {
-            addPathForRabbit(map);
-            addPathForWolf(map);
-
            for(var ent : entities)
            {
                eatEntity(new Handler() {
@@ -78,12 +75,13 @@ public class Simulation
                playOneStep(map, ent);
 
            }
-           renderer.drawMap(map);
-
+            renderer.drawMap(map);
         }
     }
     public void playOneStep(WorldMap gameMap, Entity entity)
     {
+        addPathForWolf(gameMap);
+        addPathForRabbit(gameMap);
         if (entity.symbol == "🌿")
         {
             return;
@@ -93,12 +91,12 @@ public class Simulation
         {
             return;
         }
+        handler.onCome(gameMap, entity);
         if(path.size() == 0)
         {
-            handler.onCome(gameMap, entity);
             return;
         }
-        handler.onCome(gameMap, entity);
+
         var onePos = path.removeFirst();
         gameMap.putPos(entity, onePos);
 
@@ -122,47 +120,22 @@ public class Simulation
     }
     public void addPathForWolf(WorldMap map)
     {
-        List<List<Position>> pathesNeibghors = new ArrayList<>();
         List<Entity> entities = map.getEntityes();
         for(var ent : entities)
         {
             if(ent.symbol == "🐺")
             {
+                int min = Integer.MAX_VALUE;
                 for (var e : entities)
                 {
                     if(e.symbol == "🐰")
                     {
-                         var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
-                            for(var p : path)
-                            {
-                                Entity enti = map.tryGetEntity(p);
-                                if(enti != null && (enti.symbol == "🌿" || enti.symbol == "🐺"))
-                                {
-                                    List<Position> neibghors = Graph.getNeighbors(map.tryGetPos(enti));
-                                    for(var neib : neibghors)
-                                    {
-                                        if(Graph.isValidPos(neib,map))
-                                        {
-                                            path = Graph.bfs(map, map.tryGetPos(ent), neib);
-                                            pathesNeibghors.add(path);
-                                        }
-                                    }
-                                }
-                            }
-                        int min = Integer.MAX_VALUE;
-                        for(var p : pathesNeibghors)
+                        var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                        if(path != null && path.size() < min)
                         {
-                            if(p.size() < min)
-                            {
-                                min = p.size();
-                                if(path.size() > 1)
-                                {
-                                    path = p;
-                                }
-
-                            }
+                            min = path.size();
+                            pathes.put(ent, path);
                         }
-                         pathes.put(ent, path);
                     }
                 }
             }
@@ -170,46 +143,23 @@ public class Simulation
     }
     public void addPathForRabbit(WorldMap map)
     {
-        List<List<Position>> pathesNeibghors = new ArrayList<>();
         List<Entity> entities = map.getEntityes();
+
         for(var ent : entities)
         {
             if(ent.symbol == "🐰")
             {
+                int min = Integer.MAX_VALUE;
                 for (var e : entities)
                 {
                     if(e.symbol == "🌿")
                     {
                         var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
-                        for(var p : path)
+                        if(path != null && path.size() < min)
                         {
-                            Entity enti = map.tryGetEntity(p);
-                            if(enti != null && (enti.symbol == "🐺" || enti.symbol == "🐰"))
-                            {
-                                List<Position> neibghors = Graph.getNeighbors(map.tryGetPos(enti));
-                                for(var neib : neibghors)
-                                {
-                                    if(Graph.isValidPos(neib,map))
-                                    {
-                                        path = Graph.bfs(map, map.tryGetPos(ent), neib);
-                                        pathesNeibghors.add(path);
-                                    }
-                                }
-                            }
+                            min = path.size();
+                            pathes.put(ent, path);
                         }
-                        int min = Integer.MAX_VALUE;
-                        for(var p : pathesNeibghors)
-                        {
-                            if(p.size() < min)
-                            {
-                                min = p.size();
-                                if(path.size() > 1)
-                                {
-                                    path = p;
-                                }
-                            }
-                        }
-                        pathes.put(ent, path);
                     }
                 }
             }
