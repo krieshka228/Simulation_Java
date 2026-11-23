@@ -17,7 +17,7 @@ public class Renderer
                 Position position = new Position(i,j);
                 Entity getEntity = map.tryGetEntity(position);
                 if(getEntity == null) System.out.print("🔲");
-                else System.out.print(getEntity.symbol);
+                else System.out.print(getEntity.getSymbol());
             }
         }
         pauseSec();

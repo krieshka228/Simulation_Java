@@ -2,11 +2,7 @@ package models;
 
 import core.WorldMap;
 
-public abstract class Entity {
-    public final String symbol;
-    public Entity(String symbol)
-    {
-        this.symbol = symbol;
-    }
-
+public sealed interface Entity permits StaticObject, Creature
+{
+    public String getSymbol();
 }

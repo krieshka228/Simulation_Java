@@ -49,10 +49,10 @@ public class Simulation
                    {
                        return;
                    }
-                   List<Position> neibghors = Graph.getNeighbors(pos);
+                   List<Position> neibghors = PathFinder.getNeighbors(pos);
                    for(var neib : neibghors)
                    {
-                       if(Graph.isValidPos(neib,map))
+                       if(PathFinder.isValidPos(neib,map))
                        {
                            var entity2 = map.tryGetEntity(neib);
                            if(entity2 != null)
@@ -76,36 +76,36 @@ public class Simulation
                                            map.spawnEntity(new Grass());
                                        }
                                    }
+                                   entities = map.getEntityes();
                                }
                                if(isPredator(entity1))
                                {
+                                   var pred = (Predator) entity1;
                                    if(isHerbivore(entity2))
                                    {
-                                       var pred = (Predator) entity1;
+
                                        var herb = (Herbivore) entity2;
                                        if(herb.hp >  pred.damage)
                                        {
-                                           pred.hp += herb.hp;
+                                           pred.hp += pred.damage;
                                            herb.hp -= pred.damage;
-                                           if(pred.hp > hpPredator)
-                                           {
-                                               map.spawnEntity(new Predator(hpPredator, damagePredator));
-                                               pred.hp = hpPredator;
-                                           }
                                        }
                                        else
                                        {
                                            pred.hp += herb.hp;
-                                           if(pred.hp > hpPredator)
-                                           {
-                                               map.spawnEntity(new Predator(hpPredator, damagePredator));
-                                               pred.hp = hpPredator;
-                                           }
-                                           map.removeEntity(entity2);
+
+                                           map.spawnEntity(new Predator(hpPredator, damagePredator));
+                                           map.removeEntity(entity2);entities = map.getEntityes();
                                        }
+
+                                       entities = map.getEntityes();
+                                   }
+                                   if(pred.hp > hpPredator)
+                                   {
+                                       pred.hp = hpPredator;
                                    }
                                }
-                               entities = map.getEntityes();
+
                            }
                        }
                    }
@@ -120,8 +120,8 @@ public class Simulation
     }
     public void nextTurn(WorldMap gameMap, Entity entity)
     {
-        addPathForWolfs(gameMap);
-        addPathForRabbits(gameMap);
+        findPathForWolfs(gameMap);
+        findPathForRabbits(gameMap);
         if (isGrass(entity))
         {
             return;
@@ -142,9 +142,9 @@ public class Simulation
         if(isPredator(entity))
         {
             var pred = (Creature) entity;
-            if(pred.hp > 0)
+            if(pred.hp > 2)
             {
-                pred.hp--;
+                pred.hp -= 2;
             }
             else
             {
@@ -171,7 +171,7 @@ public class Simulation
         }
         return herbOver || predOver;
     }
-    public void addPathForWolfs(WorldMap map)
+    public void findPathForWolfs(WorldMap map)
     {
         List<Entity> entities = map.getEntityes();
         for(var ent : entities)
@@ -183,7 +183,7 @@ public class Simulation
                 {
                     if(isHerbivore(e))
                     {
-                        var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                        var path = PathFinder.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
                         if(path != null && path.size() < min)
                         {
                             min = path.size();
@@ -194,7 +194,7 @@ public class Simulation
             }
         }
     }
-    public void addPathForRabbits(WorldMap map)
+    public void findPathForRabbits(WorldMap map)
     {
         List<Entity> entities = map.getEntityes();
 
@@ -207,7 +207,7 @@ public class Simulation
                 {
                     if(isGrass(e))
                     {
-                        var path = Graph.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                        var path = PathFinder.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
                         if(path != null && path.size() < min)
                         {
                             min = path.size();
@@ -224,14 +224,33 @@ public class Simulation
     }
     public boolean isHerbivore(Entity entity)
     {
-        return isCreature(entity) && entity.symbol == "🐰";
+        if(isCreature(entity))
+        {
+            var creat = (Creature) entity;
+            return creat.getSymbol() == "🐰";
+        }
+        return false;
     }
     public boolean isPredator(Entity entity)
     {
-        return isCreature(entity) && entity.symbol == "🐺";
+        if(isCreature(entity))
+        {
+            var creat = (Creature) entity;
+            return creat.getSymbol() == "🐺";
+        }
+        return false;
     }
     public boolean isGrass(Entity entity)
     {
-        return entity.symbol == "🌿";
+        if(isStatic(entity))
+        {
+            var stat = (StaticObject) entity;
+            return stat.getSymbol() == "🌿";
+        }
+        return false;
+    }
+    public boolean isStatic(Entity entity)
+    {
+        return StaticObject.class.isInstance(entity);
     }
 }

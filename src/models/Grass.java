@@ -1,9 +1,11 @@
 package models;
 
-public class Grass extends Entity
+public record Grass(String symbol) implements StaticObject
 {
     public Grass()
     {
-        super("🌿");
+        this("🌿");
     }
+    @Override
+    public String getSymbol(){return symbol;}
 }

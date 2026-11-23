@@ -1,6 +1,6 @@
 package models;
 
-public class Herbivore extends Creature
+public final class Herbivore extends Creature
 {
     public Herbivore(int hp)
     {

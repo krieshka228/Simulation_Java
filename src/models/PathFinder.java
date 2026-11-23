@@ -4,7 +4,7 @@ import core.WorldMap;
 
 import java.util.*;
 import java.util.List;
-public class Graph {
+public class PathFinder {
 
     public static List<Position> bfs(WorldMap map, Position start, Position end)
     {
