@@ -25,7 +25,7 @@ public class PathFinder {
             path = deque.removeFirst();
             node = path.get(path.size() - 1);
 
-            if(visited.contains(node))
+            if(nodeInVisited())
             {
                 continue;
             }
@@ -53,6 +53,33 @@ public class PathFinder {
         }
         return null;
     }
+    public boolean isValidSpawn(WorldMap map)
+    {
+        Random random = new Random();
+        var emptiPos = map.getEmptyPos();
+        var start  = emptiPos.get(random.nextInt(emptiPos.size()));
+        Deque<Position> deque1 = new ArrayDeque<>();
+        visited.clear();
+
+        deque1.add(start);
+        while(!deque1.isEmpty()) {
+            node = deque1.removeFirst();
+            if (nodeInVisited()) {
+                continue;
+            }
+            visited.add(node);
+            for (var neighb : getNeighbors(node)) {
+                if (isValidPos(neighb, map) && isEmptyCell1(neighb, map))
+                {
+                    deque1.add(neighb);
+                }
+
+            }
+        }
+        Set<Position> emptyPos = new HashSet<>(map.getEmptyPos());
+        return visited.equals(emptyPos);
+
+    }
     public boolean isValidPos(Position pos, WorldMap map)
     {
         return pos.x() < map.xMax && pos.x() >= 0 && pos.y() < map.yMax && pos.y() >= 0;
@@ -66,26 +93,20 @@ public class PathFinder {
         neighbors.add(new Position(node.x(), node.y() + 1));
         return neighbors;
     }
-    public boolean isValidPath(List<Position> path, WorldMap map)
+    private boolean isEmptyCell(Position currentNeibgh, WorldMap map, Position endPos)
     {
-        for(int i = 1; i < path.size() - 1; i++)
-        {
-            if(!map.isNull(path.get(i)))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    private boolean isEmptyCell(Position pos, WorldMap map, Position endPos)
-    {
-        if(pos.equals(endPos))
+        if(currentNeibgh.equals(endPos))
         {
             return true;
         }
-        else
-        {
-            return map.isNull(pos);
-        }
+            return map.isPosNull(currentNeibgh);
+    }
+    private boolean isEmptyCell1(Position currentNeibgh, WorldMap map)
+    {
+        return map.isPosNull(currentNeibgh);
+    }
+    private boolean nodeInVisited()
+    {
+        return visited.contains(node);
     }
 }

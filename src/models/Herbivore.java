@@ -1,11 +1,11 @@
 package models;
 
-import core.Simulation;
-
 public final class Herbivore extends Creature
 {
+    private final static String HERBIVORE_SYMBOL = "🐰";
+
     public Herbivore(int hp)
     {
-        super(hp, Simulation.HERBIVORE_SYMBOL);
+        super(hp, HERBIVORE_SYMBOL);
     }
 }

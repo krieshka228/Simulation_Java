@@ -6,7 +6,7 @@ import models.Position;
 public class Renderer
 {
     private static final String CLEAR_BYTES = "\033c";
-    private static final int TIME_PAUSE = 2000;
+    private static final int TIME_PAUSE = 1000;
     private static final String EMPTY_CELL_SYMBOL = "🔲";
     public void drawMap(WorldMap map)
     {
