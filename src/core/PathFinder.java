@@ -1,6 +1,6 @@
-package models;
+package core;
 
-import core.WorldMap;
+import models.Position;
 
 import java.util.*;
 import java.util.List;

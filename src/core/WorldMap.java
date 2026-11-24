@@ -7,8 +7,8 @@ import java.util.*;
 public class WorldMap
 {
     private Map<Position, Entity> entityes = new HashMap<>();
-    public int xMax;
-    public int yMax;
+    public final int xMax;
+    public final int yMax;
     public WorldMap(int xMax, int yMax)
     {
         this.xMax = xMax;

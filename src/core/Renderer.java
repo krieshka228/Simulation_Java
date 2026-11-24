@@ -5,7 +5,9 @@ import models.Position;
 
 public class Renderer
 {
-    public static final String CLEAR_BYTES = "\033c";
+    private static final String CLEAR_BYTES = "\033c";
+    private static final int TIME_PAUSE = 2000;
+    private static final String EMPTY_CELL_SYMBOL = "🔲";
     public void drawMap(WorldMap map)
     {
         consoleClear();
@@ -16,21 +18,21 @@ public class Renderer
             {
                 Position position = new Position(i,j);
                 Entity getEntity = map.tryGetEntity(position);
-                if(getEntity == null) System.out.print("🔲");
+                if(getEntity == null) System.out.print(EMPTY_CELL_SYMBOL);
                 else System.out.print(getEntity.getSymbol());
             }
         }
-        pauseSec();
+        startPause();
     }
-    public void consoleClear()
+    private void consoleClear()
     {
         System.out.print(CLEAR_BYTES);
         System.out.flush();
     }
-    public void pauseSec()
+    private void startPause()
     {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(TIME_PAUSE);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

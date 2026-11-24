@@ -1,58 +1,64 @@
 package core;
 import java.util.*;
-import java.util.logging.Handler;
 
 import models.*;
 
 public class Simulation
 {
+    private WorldMap map;
+    private PathFinder pathFinder = new PathFinder();
     public static int hpHerbivore;
     public static int hpPredator;
     public static int damagePredator;
-    public Simulation(int hpPredator, int hpHerbivore, int damagePredator)
+    public final static String HERBIVORE_SYMBOL = "🐰";
+    public final static String PREDATOR_SYMBOL = "🐺";
+    public final static String GRASS_SYMBOL = "🌿";
+
+    private List<Entity> entities = new ArrayList<>();
+    private Handler handler;
+    private Map<Entity,List<Position>> pathes = new HashMap<>();
+
+    public Simulation(int hpPredator, int hpHerbivore, int damagePredator, int xMax, int yMax)
     {
         this.hpHerbivore = hpHerbivore;
         this.hpPredator = hpPredator;
         this.damagePredator = damagePredator;
+        map = new WorldMap(xMax,yMax);
     }
-    public interface Handler
+    private interface Handler
     {
-        void onCome(WorldMap map , Entity entity1);
+        void onCome(Entity entity1);
     }
-    private List<Entity> entities = new ArrayList<>();
-    private Handler handler;
-    public Map<Entity,List<Position>> pathes = new HashMap<>();
 
-    public void eatEntity(Handler handler)
+
+    private void eatEntity(Handler handler)
     {
         this.handler = handler;
     }
     public void startSimulation()
     {
-
         List<Position> path = new ArrayList<>();
-        WorldMap map = new WorldMap(10,10);
         Renderer renderer = new Renderer();
         map.startSpawn();
 
         entities = map.getEntityes();
         renderer.drawMap(map);
-        while(!isGameOver(map))
+        while(!isGameOver())
         {
            for(var ent : entities)
            {
                eatEntity(new Handler() {
                @Override
-               public void onCome( WorldMap map, Entity entity1) {
+               public void onCome(Entity entity1) {
                    var pos = map.tryGetPos(entity1);
                    if(pos == null)
                    {
                        return;
                    }
-                   List<Position> neibghors = PathFinder.getNeighbors(pos);
+                   List<Position> neibghors = pathFinder.getNeighbors(pos);
                    for(var neib : neibghors)
                    {
-                       if(PathFinder.isValidPos(neib,map))
+                       if(pathFinder.isValidPos(neib,map))
                        {
                            var entity2 = map.tryGetEntity(neib);
                            if(entity2 != null)
@@ -93,9 +99,9 @@ public class Simulation
                                        else
                                        {
                                            pred.hp += herb.hp;
-
+                                           map.removeEntity(entity2);
                                            map.spawnEntity(new Predator(hpPredator, damagePredator));
-                                           map.removeEntity(entity2);entities = map.getEntityes();
+                                           entities = map.getEntityes();
                                        }
 
                                        entities = map.getEntityes();
@@ -112,16 +118,16 @@ public class Simulation
 
 
                }});
-               nextTurn(map, ent);
+               nextTurn(ent);
 
            }
             renderer.drawMap(map);
         }
     }
-    public void nextTurn(WorldMap gameMap, Entity entity)
+    private void nextTurn(Entity entity)
     {
-        findPathForWolfs(gameMap);
-        findPathForRabbits(gameMap);
+        findPathForWolfs();
+        findPathForRabbits();
         if (isGrass(entity))
         {
             return;
@@ -131,14 +137,14 @@ public class Simulation
         {
             return;
         }
-        handler.onCome(gameMap, entity);
+        handler.onCome(entity);
         if(path.size() == 0)
         {
             return;
         }
 
         var onePos = path.removeFirst();
-        gameMap.putPos(entity, onePos);
+        map.putPos(entity, onePos);
         if(isPredator(entity))
         {
             var pred = (Creature) entity;
@@ -148,13 +154,13 @@ public class Simulation
             }
             else
             {
-                gameMap.removeEntity(entity);
+                map.removeEntity(entity);
             }
 
         }
 
     }
-    public boolean isGameOver(WorldMap map)
+    private boolean isGameOver()
     {
         boolean herbOver = true;
         boolean predOver = true;
@@ -171,7 +177,7 @@ public class Simulation
         }
         return herbOver || predOver;
     }
-    public void findPathForWolfs(WorldMap map)
+    private void findPathForWolfs()
     {
         List<Entity> entities = map.getEntityes();
         for(var ent : entities)
@@ -183,7 +189,7 @@ public class Simulation
                 {
                     if(isHerbivore(e))
                     {
-                        var path = PathFinder.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                        var path = pathFinder.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
                         if(path != null && path.size() < min)
                         {
                             min = path.size();
@@ -194,7 +200,7 @@ public class Simulation
             }
         }
     }
-    public void findPathForRabbits(WorldMap map)
+    private void findPathForRabbits()
     {
         List<Entity> entities = map.getEntityes();
 
@@ -207,7 +213,7 @@ public class Simulation
                 {
                     if(isGrass(e))
                     {
-                        var path = PathFinder.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
+                        var path = pathFinder.bfs(map, map.tryGetPos(ent), map.tryGetPos(e));
                         if(path != null && path.size() < min)
                         {
                             min = path.size();
@@ -218,38 +224,38 @@ public class Simulation
             }
         }
     }
-    public boolean isCreature(Entity entity)
+    private boolean isCreature(Entity entity)
     {
         return Creature.class.isInstance(entity);
     }
-    public boolean isHerbivore(Entity entity)
+    private boolean isHerbivore(Entity entity)
     {
         if(isCreature(entity))
         {
             var creat = (Creature) entity;
-            return creat.getSymbol() == "🐰";
+            return creat.getSymbol() == HERBIVORE_SYMBOL;
         }
         return false;
     }
-    public boolean isPredator(Entity entity)
+    private boolean isPredator(Entity entity)
     {
         if(isCreature(entity))
         {
             var creat = (Creature) entity;
-            return creat.getSymbol() == "🐺";
+            return creat.getSymbol() == PREDATOR_SYMBOL;
         }
         return false;
     }
-    public boolean isGrass(Entity entity)
+    private boolean isGrass(Entity entity)
     {
         if(isStatic(entity))
         {
             var stat = (StaticObject) entity;
-            return stat.getSymbol() == "🌿";
+            return stat.getSymbol() == GRASS_SYMBOL;
         }
         return false;
     }
-    public boolean isStatic(Entity entity)
+    private boolean isStatic(Entity entity)
     {
         return StaticObject.class.isInstance(entity);
     }
