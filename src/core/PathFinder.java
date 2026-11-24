@@ -6,14 +6,19 @@ import java.util.*;
 import java.util.List;
 public class PathFinder {
 
-    public static List<Position> bfs(WorldMap map, Position start, Position end)
+    private Deque<List<Position>> deque = new ArrayDeque<>();
+    private Set<Position> visited = new HashSet<>();
+    private List<Position> startL = new ArrayList<>();
+    private List<Position> path;
+    private Position node;
+
+    public List<Position> bfs(WorldMap map, Position start, Position end)
     {
-        Deque<List<Position>> deque = new ArrayDeque<>();
-        Set<Position> visited = new HashSet<>();
-        List<Position> path;
-        List<Position> startL = new ArrayList<>();
+        deque.clear();
+        visited.clear();
+        startL.clear();
         startL.add(start);
-        Position node;
+
         deque.add(startL);
         while(!deque.isEmpty())
         {
@@ -48,11 +53,11 @@ public class PathFinder {
         }
         return null;
     }
-    public static boolean isValidPos(Position pos, WorldMap map)
+    public boolean isValidPos(Position pos, WorldMap map)
     {
         return pos.x() < map.xMax && pos.x() >= 0 && pos.y() < map.yMax && pos.y() >= 0;
     }
-    public static List<Position> getNeighbors(Position node)
+    public List<Position> getNeighbors(Position node)
     {
         List<Position> neighbors = new ArrayList<>();
         neighbors.add(new Position(node.x() - 1, node.y()));
@@ -61,7 +66,7 @@ public class PathFinder {
         neighbors.add(new Position(node.x(), node.y() + 1));
         return neighbors;
     }
-    public static boolean isValidPath(List<Position> path, WorldMap map)
+    public boolean isValidPath(List<Position> path, WorldMap map)
     {
         for(int i = 1; i < path.size() - 1; i++)
         {
@@ -72,7 +77,7 @@ public class PathFinder {
         }
         return true;
     }
-    public static  boolean isEmptyCell(Position pos, WorldMap map, Position endPos)
+    private boolean isEmptyCell(Position pos, WorldMap map, Position endPos)
     {
         if(pos.equals(endPos))
         {
