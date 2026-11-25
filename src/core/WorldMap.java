@@ -59,7 +59,7 @@ public class WorldMap {
         for (int x = 0; x < xMax; x++) {
             for (int y = 0; y < yMax; y++) {
                 Position currentPos = new Position(x, y);
-                if (isPosNull(currentPos)) {
+                if (isPosNull(currentPos) || Grass.class.isInstance(tryGetEntity(currentPos))) {
                     emptyPos.add(currentPos);
                 }
             }

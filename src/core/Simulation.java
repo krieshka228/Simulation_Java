@@ -265,6 +265,7 @@ public class Simulation
     public void startSpawn()
     {
         do {
+            clearMap();
             spawnStaticObjects();
             spawnHerbivore();
             spawnPredator();
@@ -273,7 +274,7 @@ public class Simulation
     public void spawnStaticObject(StaticObject currentStaticObject)
     {
         Random random = new Random();
-        for(int i = 0; i < random.nextInt(map.xMax); i++)
+        for(int i = 1; i < random.nextInt(map.xMax * map.yMax); i++)
         {
             spawnEntity(currentStaticObject);
         }
@@ -300,6 +301,18 @@ public class Simulation
             Random random = new Random();
             var pos = emptyPos.get(random.nextInt(emptyPos.size()));
             map.addEntity(pos,currentEntity);
+        }
+
+    }
+    public void clearMap()
+    {
+        entities = map.getEntityes();
+        if(entities.size() > 0)
+        {
+            for(var currentEntity : entities)
+            {
+                map.removeEntity(currentEntity);
+            }
         }
 
     }

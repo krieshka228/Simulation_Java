@@ -1,7 +1,9 @@
 package core;
 
+import models.Grass;
 import models.Position;
 
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 public class PathFinder {
@@ -38,7 +40,7 @@ public class PathFinder {
             visited.add(node);
             for(var neighb : getNeighbors(node))
             {
-                if(isValidPos(neighb, map) && isEmptyCell(neighb,map,end))
+                if(isValidPos(neighb, map) && isEmptyCellOrTarget(neighb,map,end))
                 {
                     List<Position> newPath = new ArrayList<>();
                     for (int i = 0; i < path.size(); i++)
@@ -56,8 +58,9 @@ public class PathFinder {
     public boolean isValidSpawn(WorldMap map)
     {
         Random random = new Random();
-        var emptiPos = map.getEmptyPos();
-        var start  = emptiPos.get(random.nextInt(emptiPos.size()));
+        var emptyPos = map.getEmptyPos();
+        System.out.println(emptyPos.size());
+        var start  = emptyPos.get(random.nextInt(emptyPos.size()));
         Deque<Position> deque1 = new ArrayDeque<>();
         visited.clear();
 
@@ -69,15 +72,14 @@ public class PathFinder {
             }
             visited.add(node);
             for (var neighb : getNeighbors(node)) {
-                if (isValidPos(neighb, map) && isEmptyCell1(neighb, map))
+                if (isValidPos(neighb, map) && isEmptyCell(neighb, map))
                 {
                     deque1.add(neighb);
                 }
 
             }
         }
-        Set<Position> emptyPos = new HashSet<>(map.getEmptyPos());
-        return visited.equals(emptyPos);
+        return visited.equals(new HashSet<>(emptyPos));
 
     }
     public boolean isValidPos(Position pos, WorldMap map)
@@ -93,7 +95,7 @@ public class PathFinder {
         neighbors.add(new Position(node.x(), node.y() + 1));
         return neighbors;
     }
-    private boolean isEmptyCell(Position currentNeibgh, WorldMap map, Position endPos)
+    private boolean isEmptyCellOrTarget(Position currentNeibgh, WorldMap map, Position endPos)
     {
         if(currentNeibgh.equals(endPos))
         {
@@ -101,9 +103,9 @@ public class PathFinder {
         }
             return map.isPosNull(currentNeibgh);
     }
-    private boolean isEmptyCell1(Position currentNeibgh, WorldMap map)
+    private boolean isEmptyCell(Position currentNeibgh, WorldMap map)
     {
-        return map.isPosNull(currentNeibgh);
+        return map.isPosNull(currentNeibgh) || Grass.class.isInstance(map.tryGetEntity(currentNeibgh));
     }
     private boolean nodeInVisited()
     {
