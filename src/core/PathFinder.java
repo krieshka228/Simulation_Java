@@ -59,7 +59,6 @@ public class PathFinder {
     {
         Random random = new Random();
         var emptyPos = map.getEmptyPos();
-        System.out.println(emptyPos.size());
         var start  = emptyPos.get(random.nextInt(emptyPos.size()));
         Deque<Position> deque1 = new ArrayDeque<>();
         visited.clear();

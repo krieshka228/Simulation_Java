@@ -264,11 +264,14 @@ public class Simulation
     }
     public void startSpawn()
     {
+        int k = 0;
         do {
             clearMap();
             spawnStaticObjects();
             spawnHerbivore();
             spawnPredator();
+            k++;
+            System.out.println(k);
         }while (!pathFinder.isValidSpawn(map));
     }
     public void spawnStaticObject(StaticObject currentStaticObject)
@@ -282,8 +285,8 @@ public class Simulation
     public void spawnStaticObjects()
     {
         spawnStaticObject(new Rock());
-        spawnStaticObject(new Tree());
         spawnStaticObject(new Grass());
+        spawnStaticObject(new Tree());
     }
     public void spawnHerbivore()
     {
