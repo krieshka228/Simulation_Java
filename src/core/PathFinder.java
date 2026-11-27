@@ -71,7 +71,7 @@ public class PathFinder {
             }
             visited.add(node);
             for (var neighb : getNeighbors(node)) {
-                if (isValidPos(neighb, map) && isEmptyCell(neighb, map))
+                if (isValidPos(neighb, map) && isEmptyCellOrGrass(neighb, map))
                 {
                     deque1.add(neighb);
                 }
@@ -100,9 +100,9 @@ public class PathFinder {
         {
             return true;
         }
-            return map.isPosNull(currentNeibgh);
+        return map.isPosNull(currentNeibgh);
     }
-    private boolean isEmptyCell(Position currentNeibgh, WorldMap map)
+    private boolean isEmptyCellOrGrass(Position currentNeibgh, WorldMap map)
     {
         return map.isPosNull(currentNeibgh) || Grass.class.isInstance(map.tryGetEntity(currentNeibgh));
     }

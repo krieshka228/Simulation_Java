@@ -1,15 +1,14 @@
 package models;
 
-public record Tree(String symbol) implements StaticObject
-{
+public class Tree extends Entity {
     private final static String TREE_SYMBOL = "🌳";
 
     public Tree()
     {
-        this(TREE_SYMBOL);
+        super(TREE_SYMBOL);
     }
-    public String getSymbol()
+    public EntityType getType()
     {
-        return symbol;
+        return EntityType.TREE;
     }
 }

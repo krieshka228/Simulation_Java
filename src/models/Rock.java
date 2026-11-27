@@ -1,14 +1,14 @@
 package models;
 
-import core.Simulation;
-
-public record Rock(String symbol) implements StaticObject
-{
+public class Rock extends Entity {
     private final static String ROCK_SYMBOL = "🪨";
 
     public Rock()
     {
-        this(ROCK_SYMBOL);
+        super(ROCK_SYMBOL);
     }
-    public String getSymbol() { return symbol; }
+    public EntityType getType()
+    {
+        return EntityType.ROCK;
+    }
 }

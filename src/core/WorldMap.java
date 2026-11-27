@@ -18,8 +18,9 @@ public class WorldMap {
         return entityesByPosition.get(position);
     }
 
-    public void addEntity(Position position, Entity entity) {
-        entityesByPosition.put(position, entity);
+    public void addEntity(Position position, EntityType type) {
+        Entity newEntity = EntityFactory.create(type);
+        entityesByPosition.put(position, newEntity);
     }
 
     public void putPos(Entity entity, Position newPos) {
@@ -69,6 +70,30 @@ public class WorldMap {
 
     public boolean isEntityNull(Entity currentEntity) {
         return currentEntity == null;
+    }
+    public void clearMap()
+    {
+        var entities = getEntityes();
+        if(entities.size() > 0)
+        {
+            for(var currentEntity : entities)
+            {
+                removeEntity(currentEntity);
+            }
+        }
+    }
+    public <T extends Entity> List<Entity> getEntityOfType(EntityType type)
+    {
+        List<Entity> entities = getEntityes();
+        List<Entity> targetEntities = new ArrayList<>();
+        for(var entity : entities)
+        {
+            if(type == entity.getType())
+            {
+                targetEntities.add(entity);
+            }
+        }
+        return targetEntities;
     }
 }
 

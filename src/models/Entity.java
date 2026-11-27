@@ -1,6 +1,18 @@
 package models;
 
-public sealed interface Entity permits StaticObject, Creature
+public abstract class Entity
 {
-    String getSymbol();
+    private String symbol;
+    public Entity(String symbol)
+    {
+        this.symbol = symbol;
+    }
+    public String getSymbol()
+    {
+        return symbol;
+    }
+    public abstract EntityType getType();
+
+
 }
+

@@ -1,28 +1,30 @@
 package core;
 import java.util.*;
 
+import Actions.initActions;
 import models.*;
+import models.creature.Creature;
+import models.creature.Herbivore;
+import models.creature.Predator;
 
 public class Simulation
 {
     private WorldMap map;
     private Renderer renderer;
     private PathFinder pathFinder = new PathFinder();
-    public static int hpHerbivore;
-    public static int hpPredator;
-    public static int damagePredator;
+    private initActions initActions;
+
 
     private List<Entity> entities = new ArrayList<>();
     private Handler handlerArrival;
     private Map<Entity,List<Position>> pathesByEntity = new HashMap<>();
 
-    public Simulation(int hpPredator, int hpHerbivore, int damagePredator, int xMax, int yMax)
+    public Simulation(int hpPredator, int hpHerbivore, int damagePredator, int moveSpeedHerbivore, int moveSpeedPredator, int xMax, int yMax)
     {
-        this.hpHerbivore = hpHerbivore;
-        this.hpPredator = hpPredator;
-        this.damagePredator = damagePredator;
         map = new WorldMap(xMax,yMax);
         renderer = new Renderer();
+        EntitySpawner entitySpawner = new EntitySpawner(map);
+        initActions = new initActions(map, entitySpawner, pathFinder);
     }
     private interface Handler
     {
@@ -36,8 +38,7 @@ public class Simulation
 
     public void startSimulation()
     {
-        startSpawn();
-
+        initActions.execute();
         entities = map.getEntityes();
         renderer.drawMap(map);
         while(!isGameOver())
@@ -64,28 +65,31 @@ public class Simulation
                        }
                    }
                }});
-               findPathForEntities();
-               nextTurn(currentEntity);
+               if(isCreature(currentEntity))
+               {
+                   var currentCreature = (Creature) currentEntity;
+                   for (int i = 0; i < currentCreature.getMoveSpeed(); i++)
+                   {
+                       findPathForEntities();
+                       nextTurn(currentCreature);
+                   }
+               }
+
+
            }
             renderer.drawMap(map);
         }
     }
-    private void nextTurn(Entity curentEntity)
+    private void nextTurn(Creature currentCreature)
     {
-        if (isGrass(curentEntity))
-        {
-            return;
-        }
-        var path = pathesByEntity.get(curentEntity);
-        handlerArrival.onArrivle(curentEntity);
+        var path = pathesByEntity.get(currentCreature);
+        handlerArrival.onArrivle(currentCreature);
         if(isPathNullOrEmpty(path))
         {
             return;
         }
-
-        var onePos = path.removeFirst();
-        map.putPos(curentEntity, onePos);
-        dropHpPredator(curentEntity);
+        currentCreature.makeMove(path, map);
+        dropHpPredator(currentCreature);
 
     }
     private boolean isGameOver()
@@ -176,35 +180,44 @@ public class Simulation
     }
     private void herbivoreEatGrass(Herbivore herb, Grass currentGrass)
     {
-        if(herb.hp < hpHerbivore)
+        var currentHerbHp = herb.getHp();
+        if(currentHerbHp < hpHerbivore)
         {
             map.removeEntity(currentGrass);
             spawnEntity(new Grass());
-            herb.hp += damagePredator;
+            currentHerbHp += damagePredator;
+            herb.setHp(currentHerbHp);
         }
         else
         {
-            herb.hp = hpHerbivore;
+            currentHerbHp = hpHerbivore;
             var posGrass = map.tryGetPosEntity(currentGrass);
             map.removeEntity(currentGrass);
             map.removeEntity(herb);
             map.putPos(herb, posGrass);
-            spawnEntity(new Herbivore(hpHerbivore));
+            spawnEntity(new Herbivore(hpHerbivore, moveSpeedHerbivore));
             spawnEntity(new Grass());
+            herb.setHp(currentHerbHp);
         }
     }
     private void predatorEatHerb(Predator currentPred, Herbivore currentHerb)
     {
-        if(currentHerb.hp >  currentPred.damage)
+        var currentPredHp = currentPred.getHp();
+        var currentPredDamage = currentPred.getDamage();
+        var currentHerbHp = currentHerb.getHp();
+        if(currentHerbHp >  currentPredDamage)
         {
-            currentPred.hp += currentPred.damage;
-            currentHerb.hp -= currentPred.damage;
+            currentPredHp += currentPredDamage;
+            currentHerbHp -= currentPredDamage;
+            currentHerb.setHp(currentHerbHp);
+            currentPred.setHp(currentPredHp);
         }
         else
         {
-            currentPred.hp += currentHerb.hp;
+            currentPredHp += currentHerbHp;
+            currentPred.setHp(currentPredHp);
             map.removeEntity(currentHerb);
-            spawnEntity(new Predator(hpPredator, damagePredator));
+            spawnEntity(new Predator(hpPredator, damagePredator, moveSpeedPredator));
             entities = map.getEntityes();
         }
     }
@@ -222,14 +235,16 @@ public class Simulation
         }
         if(isPredator(currentEntity))
         {
-            var CurrentPred = (Predator) currentEntity;
+            var currentPred = (Predator) currentEntity;
+            var currentPredHp = currentPred.getHp();
             if (isHerbivore(entityNeibghor)) {
                 var herb = (Herbivore) entityNeibghor;
-                predatorEatHerb(CurrentPred, herb);
+                predatorEatHerb(currentPred, herb);
                 entities = map.getEntityes();
             }
-            if (CurrentPred.hp > hpPredator) {
-                CurrentPred.hp = hpPredator;
+            if (currentPredHp > hpPredator) {
+                currentPredHp = hpPredator;
+                currentPred.setHp(currentPredHp);
             }
         }
     }
@@ -251,9 +266,11 @@ public class Simulation
         if(isPredator(currentEntity))
         {
             var pred = (Creature) currentEntity;
-            if(pred.hp > 1)
+            var predHp = pred.getHp();
+            if(predHp > 1)
             {
-                pred.hp -= 1;
+                predHp -= 1;
+                pred.setHp(predHp);
             }
             else
             {
@@ -262,61 +279,8 @@ public class Simulation
 
         }
     }
-    public void startSpawn()
+    public boolean isCreature(Entity entity)
     {
-        int k = 0;
-        do {
-            clearMap();
-            spawnStaticObjects();
-            spawnHerbivore();
-            spawnPredator();
-            k++;
-            System.out.println(k);
-        }while (!pathFinder.isValidSpawn(map));
-    }
-    public void spawnStaticObject(StaticObject currentStaticObject)
-    {
-        Random random = new Random();
-        for(int i = 1; i < random.nextInt(map.xMax * map.yMax); i++)
-        {
-            spawnEntity(currentStaticObject);
-        }
-    }
-    public void spawnStaticObjects()
-    {
-        spawnStaticObject(new Rock());
-        spawnStaticObject(new Grass());
-        spawnStaticObject(new Tree());
-    }
-    public void spawnHerbivore()
-    {
-        spawnEntity(new Herbivore(Simulation.hpHerbivore));
-    }
-    public void spawnPredator()
-    {
-        spawnEntity(new Predator(Simulation.hpPredator,Simulation.damagePredator));
-    }
-    public void spawnEntity(Entity currentEntity)
-    {
-        var emptyPos = map.getEmptyPos();
-        if(emptyPos.size() > 0)
-        {
-            Random random = new Random();
-            var pos = emptyPos.get(random.nextInt(emptyPos.size()));
-            map.addEntity(pos,currentEntity);
-        }
-
-    }
-    public void clearMap()
-    {
-        entities = map.getEntityes();
-        if(entities.size() > 0)
-        {
-            for(var currentEntity : entities)
-            {
-                map.removeEntity(currentEntity);
-            }
-        }
-
+        return Creature.class.isInstance(entity);
     }
 }
